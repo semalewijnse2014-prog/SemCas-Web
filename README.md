@@ -23,7 +23,7 @@ SemCAS‑Web lets you type things like:
 ---
 
 ## 🚀 Live Demo  
-**https://semalewijnse2014-prog.github.io/SemCAS-Web/**
+**https://semalewijnse2014-prog.github.io/SemCas-Web/**
 
 ---
 
