@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SemCAS – Mensentaal Edition</title>
+
+  <!-- Nerdamer -->
+  <script src="https://cdn.jsdelivr.net/npm/nerdamer@1.1.13/nerdamer.core.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/nerdamer@1.1.13/Algebra.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/nerdamer@1.1.13/Calculus.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/nerdamer@1.1.13/Solve.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/nerdamer@1.1.13/Extra.js"></script>
+
+  <style>
+    :root {
+      --bg: #05060a;
+      --panel: #0f1117;
+      --accent: #7f5af0;
+      --text: #e5e5e5;
+      --text-soft: #9ca3af;
+      --error: #f87171;
+      --ok: #4ade80;
+      --mono: "JetBrains Mono", monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at top, #111827 0, #020617 55%, #000 100%);
+      color: var(--text);
+      font-family: system-ui, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 1.5rem;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 950px;
+      background: #020617;
+      border: 1px solid #1f2937;
+      border-radius: 20px;
+      padding: 1.5rem;
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,.03),
+        0 20px 60px rgba(0,0,0,.8);
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .title {
+      display: flex;
+      gap: .9rem;
+      align-items: center;
+    }
+
+    .logo {
+      font-family: var(--mono);
+      white-space: pre;
+      padding: .45rem .6rem;
+      border-radius: 10px;
+      background:
+        radial-gradient(circle at top left, #7f5af0, #111827 60%);
+      border: 1px solid rgba(129,140,248,.6);
+      box-shadow: 0 0 20px rgba(127,90,240,.5);
+      font-size: .85rem;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 1.3rem;
+    }
+
+    .subtitle {
+      color: var(--text-soft);
+      font-size: .85rem;
+    }
+
+    .badge {
+      padding: .35rem .7rem;
+      border-radius: 999px;
+      border: 1px solid #374151;
+      color: #9ca3af;
+      font-size: .75rem;
+      display: flex;
+      align-items: center;
+      gap: .45rem;
+      background: rgba(15,23,42,.9);
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: #22c55e;
+      box-shadow: 0 0 10px #22c55e;
+    }
+
+    .panel {
+      background: rgba(15,23,42,.9);
+      border: 1px solid #1f2937;
+      border-radius: 16px;
+      padding: 1rem;
+    }
+
+    .label {
+      font-size: .8rem;
+      color: var(--text-soft);
+      margin-bottom: .8rem;
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .4rem;
+      margin-bottom: .9rem;
+    }
+
+    .chip {
+      border: 1px solid #374151;
+      background: #111827;
+      color: #d1d5db;
+      border-radius: 999px;
+      padding: .3rem .6rem;
+      cursor: pointer;
+      font-size: .75rem;
+      transition: .15s;
+    }
+
+    .chip:hover {
+      background: #312e81;
+      border-color: #818cf8;
+    }
+
+    .input-row {
+      display: flex;
+      gap: .6rem;
+      flex-wrap: wrap;
+    }
+
+    .input {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      background: #111827;
+      border: 1px solid #1f2937;
+      border-radius: 12px;
+      padding: .7rem .8rem;
+      min-width: 250px;
+    }
+
+    .prefix {
+      color: #6b7280;
+      font-family: var(--mono);
+    }
+
+    input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--text);
+      font-size: .95rem;
+      font-family: var(--mono);
+    }
+
+    input::placeholder {
+      color: #4b5563;
+    }
+
+    button.eval {
+      border: 1px solid rgba(129,140,248,.7);
+      background:
+        radial-gradient(circle at top left, #4f46e5, #1d1b3a 60%);
+      color: white;
+      border-radius: 12px;
+      padding: .7rem 1rem;
+      cursor: pointer;
+      font-size: .9rem;
+      box-shadow: 0 0 20px rgba(79,70,229,.4);
+    }
+
+    .result {
+      margin-top: 1rem;
+      background: #111827;
+      border: 1px solid #1f2937;
+      border-radius: 12px;
+      padding: .9rem;
+      font-family: var(--mono);
+    }
+
+    .result-label {
+      font-size: .75rem;
+      color: #6b7280;
+      margin-bottom: .3rem;
+    }
+
+    .result-value {
+      color: var(--ok);
+      word-break: break-word;
+      font-size: 1rem;
+    }
+
+    .error {
+      color: var(--error);
+    }
+
+    .history {
+      margin-top: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: .45rem;
+      max-height: 260px;
+      overflow: auto;
+    }
+
+    .history-item {
+      background: #111827;
+      border: 1px solid #1f2937;
+      border-radius: 10px;
+      padding: .55rem;
+      cursor: pointer;
+      transition: .15s;
+      font-family: var(--mono);
+    }
+
+    .history-item:hover {
+      background: #1e3a8a;
+      border-color: #818cf8;
+    }
+
+    .history-expr {
+      color: #e5e7eb;
+      font-size: .85rem;
+    }
+
+    .history-res {
+      color: #4ade80;
+      font-size: .8rem;
+      margin-top: .15rem;
+    }
+  </style>
+</head>
+<body>
+
+<div class="app">
+
+  <div class="header">
+    <div class="title">
+      <div class="logo">SemCAS
+WEB</div>
+
+      <div>
+        <h1>SemCAS – Mensentaal Edition</h1>
+        <div class="subtitle">
+          Typ normale mensentaal en laat Nerdamer de shit oplossen.
+        </div>
+      </div>
+    </div>
+
+    <div class="badge">
+      <div class="dot"></div>
+      CAS Runtime • Nerdamer Powered
+    </div>
+  </div>
+
+  <div class="panel">
+
+    <div class="label">
+      Ondersteund:
+      differentieer • integreer • los op • factoriseer • expand
+    </div>
+
+    <div class="chips">
+      <button class="chip">differentieer x^2 + 3x</button>
+      <button class="chip">integreer sin(x)</button>
+      <button class="chip">los x^2 = 9 op</button>
+      <button class="chip">factoriseer x^2+5x+6</button>
+      <button class="chip">breid uit (x+2)^3</button>
+    </div>
+
+    <div class="input-row">
+      <div class="input">
+        <span class="prefix">></span>
+        <input
+          id="som"
+          type="text"
+          spellcheck="false"
+          value="differentieer x^2 + 3x"
+        />
+      </div>
+
+      <button class="eval" onclick="bereken()">
+        ⏎ Bereken
+      </button>
+    </div>
+
+    <div class="result">
+      <div class="result-label">Resultaat</div>
+      <div class="result-value" id="uitkomst">
+        Nog niks ontploft. Typ iets.
+      </div>
+    </div>
+
+    <div class="history" id="history"></div>
+
+  </div>
+</div>
+
+<script>
+  const historyEl = document.getElementById("history");
+  let historyData = [];
+
+  // ⭐ chips
+  document.querySelectorAll(".chip").forEach(chip => {
+    chip.addEventListener("click", () => {
+      document.getElementById("som").value = chip.textContent;
+    });
+  });
+
+  // ⭐ mensentaal parser (simpel maar stabiel)
+  function mensentaal(expr) {
+    let e = expr.toLowerCase().trim();
+
+    // troep eruit
+    e = e
+      .replace(/[?!]+/g, "")
+      .replace(/[.,;:]+$/g, "")
+      .replace(/\s+/g, " ");
+
+    // x² → x^2
+    e = e.replace(/([a-zA-Z])\u00B2/g, "$1^2");
+
+    // DIFFERENTIËREN
+    if (e.match(/^(differentieer|afgeleide|wat is de afgeleide van|deriveer)/)) {
+      e = e.replace(/differentieer|afgeleide van|afgeleide|wat is de afgeleide van|deriveer/g, "").trim();
+      return `diff(${e}, x)`;
+    }
+
+    // INTEGREREN
+    if (e.match(/^(integreer|integraal|bereken de integraal van|wat is de integraal van)/)) {
+      e = e.replace(/integreer|integraal van|bereken de integraal van|wat is de integraal van|integraal/g, "").trim();
+      return `integrate(${e}, x)`;
+    }
+
+    // LIMIET
+    if (e.includes("limiet")) {
+      const m = e.match(/limiet van (.*) als (.*) naar (.*)/);
+      if (m) {
+        return `limit(${m[1]}, ${m[2]}, ${m[3]})`;
+      }
+    }
+
+    // VERGELIJKING OPLOSSEN
+    if (e.match(/^(los|kun je).*op/)) {
+      e = e.replace(/los|kun je|op|even|please|alsjeblieft/g, "").trim();
+      return `solve(${e}, x)`;
+    }
+
+    // EXPAND
+    if (e.match(/^(breid uit|breid|expand)/)) {
+      e = e.replace(/breid uit|breid|expand/g, "").trim();
+      return `expand(${e})`;
+    }
+
+    // FACTOR
+    if (e.match(/^(factoriseer|factor|ontbind)/)) {
+      e = e.replace(/factoriseer|factor|ontbind/g, "").trim();
+      return `factor(${e})`;
+    }
+
+    // SIMPLIFY
+    if (e.match(/^(vereenvoudig|herleid)/)) {
+      e = e.replace(/vereenvoudig|herleid/g, "").trim();
+      return `simplify(${e})`;
+    }
+
+    // BEREKEN
+    if (e.startsWith("bereken")) {
+      return e.replace("bereken", "").trim();
+    }
+
+    // fallback: opgeschoonde versie terug
+    return e;
+  }
+
+  // ⭐ syntax fixer
+  function parseInvoer(expr) {
+    let e = expr;
+
+    // alle vraagtekens weg, overal
+    e = e.replace(/\?/g, "");
+
+    // sin x → sin(x)
+    e = e.replace(/(sin|cos|tan|log|ln|sqrt)\s+([a-zA-Z0-9(]+)/g, "$1($2)");
+
+    // 2x → 2*x
+    e = e.replace(/(\d)([a-zA-Z])/g, "$1*$2");
+
+    // x2 → x*2
+    e = e.replace(/([a-zA-Z])(\d)/g, "$1*$2");
+
+    // (x+1)(x+2) → (x+1)*(x+2)
+    e = e.replace(/\)\(/g, ")*(");
+
+    // 2(x+1) → 2*(x+1)
+    e = e.replace(/(\d)\(/g, "$1*(");
+
+    // (x+1)2 → (x+1)*2
+    e = e.replace(/\)(\d)/g, ")*$1");
+
+    // trailing troep weg
+    e = e.replace(/[.,;:]+$/g, "");
+
+    return e;
+  }
+
+  function addHistory(expr, result) {
+    // vraagtekens niet bewaren
+    expr = expr.replace(/\?/g, "");
+
+    historyData.unshift({ expr, result });
+
+    if (historyData.length > 20) {
+      historyData.pop();
+    }
+
+    renderHistory();
+  }
+
+  function renderHistory() {
+    historyEl.innerHTML = "";
+
+    historyData.forEach(item => {
+      const div = document.createElement("div");
+      div.className = "history-item";
+
+      div.innerHTML = `
+        <div class="history-expr">${item.expr}</div>
+        <div class="history-res">${item.result}</div>
+      `;
+
+      div.addEventListener("click", () => {
+        document.getElementById("som").value = item.expr.replace(/\?/g, "");
+      });
+
+      historyEl.appendChild(div);
+    });
+  }
+
+  function bereken() {
+    const invoer = document.getElementById("som").value;
+
+    const nerdamerExpr = mensentaal(invoer);
+    let parsed = parseInvoer(nerdamerExpr);
+
+    // laatste safety
+    parsed = parsed.replace(/\?/g, "");
+
+    try {
+      const resultaat = nerdamer(parsed).toString();
+
+      const uitkomst = document.getElementById("uitkomst");
+      uitkomst.classList.remove("error");
+      uitkomst.innerText = resultaat;
+
+      addHistory(invoer, resultaat);
+
+    } catch (fout) {
+      const uitkomst = document.getElementById("uitkomst");
+      uitkomst.classList.add("error");
+      uitkomst.innerText = "Fout: " + fout.message;
+    }
+  }
+
+  document.getElementById("som")
+    .addEventListener("keydown", e => {
+      if (e.key === "Enter") {
+        bereken();
+      }
+    });
+</script>
+
+</body>
+</html>
