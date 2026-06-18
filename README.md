@@ -1,3 +1,4 @@
+**THIS IS DEAD**
 # SemCAS‑Web
 A natural‑language Computer Algebra System (CAS) for the browser — built by Sem, powered by Nerdamer, and designed to understand math written the way humans actually speak.
 
