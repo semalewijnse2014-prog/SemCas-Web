@@ -1,170 +1,194 @@
-THIS IS DEAD
-# SemCAS‑Web
-A natural‑language Computer Algebra System (CAS) for the browser — built by Sem, powered by Nerdamer, and designed to understand math written the way humans actually speak.
+###ANNOUNCEMENT: sorry that it looks ugly, but it is what it is (for now).
 
-SemCAS‑Web lets you type things like:
+# SemCAS 11.1 — Dutch Edition
 
-> “differentieer x^2 + 3x”  
-> “wat is de integraal van sin x”  
-> “los x^2 = 9 op”
+A lightweight Computer Algebra System (CAS) built on SymPy with a natural language interface in Dutch. Supports symbolic mathematics, equation solving, calculus, and step-by-step explanations.
 
-…and instantly returns the correct mathematical result.
+## Features
 
----
+- Symbolic computation using SymPy
+- Natural language Dutch commands (e.g., `vereenvoudig`, `differentieer`, `integreer`)
+- Pythagorean theorem solver (`pyth a=... b=... c=...`)
+- Angle mode switching (radians/degrees)
+- Step-by-step explanations using `leg ... uit`
+- Predefined variables: `d` through `z` (a, b, c reserved for Pythagorean theorem)
+- Special constants: `E` (Euler's number), `pi`, `phi` (golden ratio), `I` (imaginary unit), `oo` (infinity)
 
-## ⭐ Features
-- Natural‑language → math parser  
-- Supports: differentiation, integration, solving, factoring, expanding, simplifying  
-- Automatic syntax correction (implicit multiplication, `sin x` → `sin(x)`, `x²` → `x^2`, etc.)  
-- Powered by Nerdamer CAS engine  
-- Clickable history panel  
-- Fully client‑side (no backend required)  
-- Works on desktop, tablet, and mobile
+## License
 
----
+This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
 
-## 🚀 Live Demo  
-**https://semalewijnse2014-prog.github.io/SemCas-Web/**
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 
----
+You should have received a copy of the GNU General Public License along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-## 📦 Installation
-No installation required — simply open `index.html` in your browser.
+## Installation
 
-To run locally:
-git clone https://github.com//SemCAS-Web cd SemCAS-Web open index.html
----
+```bash
+pip install sympy
+```
 
-## 🧠 How It Works
-SemCAS‑Web uses:
+## Usage
 
-- A custom natural‑language parser (SemParser v3)  
-- A syntax normalizer that cleans and fixes algebra  
-- Nerdamer for symbolic math operations  
+Run the script:
 
-The parser interprets Dutch sentences and converts them into valid Nerdamer expressions.
+```bash
+python semcas11-1_nl.py
+```
 
----
+Then enter commands at the `SemCAS>` prompt. Type `stop`, `exit`, or `quit` to exit.
 
-# 📘 Syntax: Dutch  
-### *(Currently the only supported language — English support planned for a future release)*
+## Commands Reference
 
-This section explains the **Dutch syntax**, but the explanation itself is written in **English** so international developers can understand how SemCAS‑Web works.
+### Basic Operations
 
----
+- `vereenvoudig <expr>` - Simplify an expression
+  - Example: `vereenvoudig (x^2 - 1)/(x - 1)`
 
-## 🇳🇱 Dutch Syntax Rules (Explained in English)
+- `breid uit <expr>` - Expand an expression
+  - Example: `breid uit (x + 2)^2`
 
-### **1. Differentiation**
-Trigger words:
-- `differentieer`
-- `afgeleide`
-- `wat is de afgeleide van`
-- `deriveer`
+- `expand <expr>` - Same as above (English)
+  - Example: `expand (x + 2)^2`
 
-**Examples:**
-- `differentieer x^2 + 3x` → `diff(x^2 + 3x, x)`
-- `wat is de afgeleide van sin x` → `diff(sin(x), x)`
+- `factoriseer <expr>` - Factor an expression
+  - Example: `factoriseer x^2 - 4`
 
----
+### Calculus
 
-### **2. Integration**
-Trigger words:
-- `integreer`
-- `integraal`
-- `wat is de integraal van`
-- `bereken de integraal van`
+- `differentieer <expr>` - Differentiate with respect to variable
+  - Example: `differentieer x^3 + 2*x`
 
-**Examples:**
-- `integreer x^2` → `integrate(x^2, x)`
-- `wat is de integraal van sin(x)` → `integrate(sin(x), x)`
+- `integreer <expr>` - Integrate with respect to variable
+  - Example: `integreer x^2`
 
----
+- `wat is de limiet van <expr> als <var> naar <waarde> gaat` - Compute a limit
+  - Example: `wat is de limiet van sin(x)/x als x naar 0 gaat`
 
-### **3. Solving Equations**
-Trigger words:
-- `los ... op`
-- `kun je ... oplossen`
+### Equation Solving
 
-**Examples:**
-- `los x^2 = 9 op` → `solve(x^2 = 9, x)`
-- `kun je x+5=12 oplossen` → `solve(x+5=12, x)`
+- `los <eq> op` - Solve equation
+  - Example: `los x^2 - 4 = 0 op`
 
----
+- `los <eq> op voor <var>` - Solve for specific variable
+  - Example: `los x^2 + y^2 = 25 op voor y`
 
-### **4. Expanding**
-Trigger words:
-- `breid uit`
-- `expand`
+### Geometry
 
-**Example:**
-- `breid uit (x+2)^3` → `expand((x+2)^3)`
+- `pyth a=<val> b=<val> c=<val>` - Solve Pythagorean theorem (leave one unknown)
+  - Example: `pyth a=3 b=4` (finds c)
+  - Example: `pyth a=3 c=5` (finds b)
+  - Example: `pyth b=4 c=5` (finds a)
 
----
+### Angle Mode
 
-### **5. Factoring**
-Trigger words:
-- `factoriseer`
-- `factor`
-- `ontbind`
+- `mode rad` - Set angle mode to radians (default)
+  - Example: `mode rad`
 
-**Example:**
-- `factoriseer x^2+5x+6` → `factor(x^2+5x+6)`
+- `mode deg` - Set angle mode to degrees
+  - Example: `mode deg`
 
----
+### Step-by-Step Explanations
 
-### **6. Simplifying**
-Trigger words:
-- `vereenvoudig`
-- `herleid`
+- `leg <expr> uit` - Show step-by-step simplification
+  - Example: `leg (x^2 - 1)/(x - 1) uit`
 
-**Example:**
-- `vereenvoudig 2x + 3x` → `simplify(2x + 3x)`
+- `leg vereenvoudig <expr> uit` - Alternative syntax
+  - Example: `leg vereenvoudig x^2 + 2*x + 1 uit`
 
----
+### Direct Evaluation
 
-### **7. Limits**
-Trigger pattern:
-- `limiet van <expr> als <var> naar <value>`
+Any expression entered without a command will be simplified automatically.
 
-**Example:**
-- `limiet van sin x / x als x naar 0` → `limit(sin(x)/x, x, 0)`
+Examples:
+```
+SemCAS> x^2 + 2*x + 1
+x^2 + 2x + 1
 
----
+SemCAS> sin(pi/2)
+1
 
-## 🔧 Automatic Syntax Fixes
-SemCAS‑Web automatically corrects:
+SemCAS> 2 + 3*4
+14
+```
 
-- `sin x` → `sin(x)`
-- `2x` → `2*x`
-- `x2` → `x*2`
-- `(x+1)(x+2)` → `(x+1)*(x+2)`
-- `x²` → `x^2`
-- Removes punctuation (`?`, `!`, `.`, etc.)
-- Normalizes whitespace  
-- Prevents invalid variables like `x?`
+## Variable System
 
----
+Available variables: `d`, `e`, `f`, `g`, `h`, `i`, `j`, `k`, `l`, `m`, `n`, `o`, `p`, `q`, `r`, `s`, `t`, `u`, `v`, `w`, `x`, `y`, `z`
 
----
+Reserved variables (for Pythagorean theorem only): `a`, `b`, `c`
 
-## 🧩 Dependencies
-- Nerdamer (Algebra, Calculus, Solve, Extra modules) — loaded via CDN
+Constants: `E`, `pi`, `phi`, `I`, `oo`
 
----
+## Syntax Tips
 
-## 🧑‍💻 Contributing
-Pull requests are welcome.  
-If you want to help add **English syntax support**, open an issue first so we can coordinate.
+- Use `^` for exponentiation (converted to `**` internally)
+- Multiplication is implicit between numbers and variables: `2x` → `2*x`
+- Multiplication is implicit between variables: `xy` → `x*y`
+- Use `=` for equations in `los` commands
+- Use `oo` or `inf` for infinity in limits
 
----
+## Examples
 
-## 📄 License
-GPLv3
+```
+SemCAS> vereenvoudig (x^2 - 1)/(x - 1)
+x + 1
 
----
+SemCAS> breid uit (x + 2)^3
+x^3 + 6x^2 + 12x + 8
 
-## 🧨 Credits
-Built by **Sem**  
-Parser design, UI, and chaotic debugging powered by pure Sem‑energy.  
-Math engine powered by Nerdamer.
+SemCAS> differentieer x^3 * sin(x)
+3x^2*sin(x) + x^3*cos(x)
+
+SemCAS> los x^2 - 5*x + 6 = 0 op
+2, 3
+
+SemCAS> pyth a=3 b=4
+5
+
+SemCAS> wat is de limiet van sin(x)/x als x naar 0 gaat
+1
+
+SemCAS> leg (x^2 + 2*x + 1) uit
+(x + 1)^2
+
+Stap 1: Begin met de expressie: x^2 + 2x + 1.
+Stap 2: Pas indien nodig de hoekmodus (rad/deg) toe.
+Stap 3: Combineer gelijksoortige termen en vereenvoudig de structuur.
+Stap 4: De vereenvoudigde vorm is: (x + 1)^2.
+
+SemCAS> mode deg
+Hoekmodus ingesteld op deg.
+
+SemCAS> sin(90)
+1
+```
+
+## Limitations
+
+- Only variables `d` through `z` are available (a, b, c are reserved)
+- Equation solving uses SymPy's `solve()` (works for algebraic equations)
+- Step-by-step explanation is currently limited to simplification
+- The `root` function may not work as expected in all cases
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## Copyright
+
+Copyright (C) 2026 SemCAS Contributors
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+```
