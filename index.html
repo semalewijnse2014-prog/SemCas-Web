@@ -1,38 +1,200 @@
 <!DOCTYPE html>
-<html>
+<html lang="nl">
 <head>
-  <script src="https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SemCAS 11.1 Web</title>
+    <!-- Laad Pyodide -->
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js"></script>
+    <style>
+        :root {
+            --bg-color: #1e1e2e;
+            --term-bg: #11111b;
+            --text-color: #cdd6f4;
+            --accent: #89b4fa;
+            --success: #a6e3a1;
+            --error: #f38ba8;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+        h1 { color: var(--accent); margin-bottom: 5px; }
+        #status { font-size: 0.9em; color: #f9e2af; margin-bottom: 20px; height: 20px; }
+        
+        .container { width: 100%; max-width: 800px; display: flex; flex-direction: column; gap: 15px; }
+        
+        .input-group { display: flex; gap: 10px; }
+        input[type="text"] {
+            flex: 1;
+            padding: 12px;
+            font-size: 1.1em;
+            font-family: 'Consolas', monospace;
+            background-color: var(--term-bg);
+            color: var(--text-color);
+            border: 1px solid #313244;
+            border-radius: 6px;
+            outline: none;
+        }
+        input[type="text"]:focus { border-color: var(--accent); }
+        
+        button {
+            padding: 12px 24px;
+            font-size: 1.1em;
+            background-color: var(--accent);
+            color: var(--bg-color);
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:disabled { opacity: 0.5; cursor: not-allowed; }
+        
+        #output {
+            background-color: var(--term-bg);
+            border: 1px solid #313244;
+            border-radius: 6px;
+            padding: 20px;
+            min-height: 300px;
+            max-height: 60vh;
+            overflow-y: auto;
+            font-family: 'Consolas', monospace;
+            white-space: pre-wrap;
+            line-height: 1.5;
+        }
+        .log-cmd { color: var(--accent); font-weight: bold; }
+        .log-result { color: var(--success); }
+        .log-error { color: var(--error); }
+    </style>
 </head>
+<body>
 
-<body style="background:black;color:lime;font-family:monospace">
+    <h1>🧮 SemCAS 11.1 Web</h1>
+    <div id="status">Bezig met initialiseren...</div>
 
-<pre id="screen">SemCAS REPL loading...</pre>
+    <div class="container">
+        <div class="input-group">
+            <input type="text" id="command" placeholder="bijv. differentieer x^3 + 2x" disabled>
+            <button id="run" disabled>Uitvoeren</button>
+        </div>
 
-<script>
-let pyodide;
-let screen = document.getElementById("screen");
+        <div id="output">
+            <div class="log-entry">
+                <span class="log-cmd">SemCAS > </span>
+                <span class="log-result">Welkom! Wacht tot SymPy geladen is...</span>
+            </div>
+        </div>
+    </div>
 
-function log(text){
-  screen.innerText += "\n" + text;
-}
+    <script>
+        let pyodide;
+        const statusEl = document.getElementById('status');
+        const commandEl = document.getElementById('command');
+        const runBtn = document.getElementById('run');
+        const outputEl = document.getElementById('output');
 
-async function init(){
-  pyodide = await loadPyodide();
+        async function initPyodide() {
+            try {
+                pyodide = await loadPyodide();
+                statusEl.innerText = "SymPy pakket downloaden...";
+                await pyodide.loadPackage("sympy");
+                
+                // Haal de ruwe tekst van semcas.py op
+                statusEl.innerText = "semcas.py laden...";
+                const pythonCode = await fetch("semcas.py").then(r => r.text());
+                
+                // CRUCIAAL: We moeten de 'while True' lus in de Python code uitschakelen voor de browser.
+                // We doen dit door de code te splitsen bij de REPL sectie en alleen de definities te laden.
+                // Dit zorgt dat de functies bestaan, maar de terminal-lus niet start.
+                
+                const replIndex = pythonCode.indexOf("--------------------------------------------\nREPL\n--------------------------------------------");
+                
+                if (replIndex !== -1) {
+                    // Laad alleen het deel VÓOR de REPL lus
+                    const coreCode = pythonCode.substring(0, replIndex);
+                    await pyodide.runPythonAsync(coreCode);
+                } else {
+                    // Fallback: laad alles als de marker niet gevonden wordt
+                    await pyodide.runPythonAsync(pythonCode);
+                }
+                
+                statusEl.innerText = "✅ Klaar! SemCAS is geladen.";
+                statusEl.style.color = "#a6e3a1";
+                commandEl.disabled = false;
+                runBtn.disabled = false;
+                commandEl.focus();
+                
+                addLog("Systeem", "SemCAS 11.1 succesvol geladen in de browser.");
+                
+            } catch (err) {
+                statusEl.innerText = "❌ Fout bij laden: " + err.message;
+                statusEl.style.color = "#f38ba8";
+                console.error(err);
+            }
+        }
 
-  let code = await (await fetch("semcas.py")).text();
-  pyodide.runPython(code);
+        function addLog(source, message, isError = false) {
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            entry.style.marginBottom = "15px";
+            
+            const cmdSpan = document.createElement('div');
+            cmdSpan.className = 'log-cmd';
+            cmdSpan.innerText = `SemCAS > ${source}`;
+            
+            const resSpan = document.createElement('div');
+            resSpan.className = isError ? 'log-error' : 'log-result';
+            resSpan.innerText = message;
+            
+            entry.appendChild(cmdSpan);
+            entry.appendChild(resSpan);
+            outputEl.appendChild(entry);
+            outputEl.scrollTop = outputEl.scrollHeight;
+        }
 
-  screen.innerText = "SemCAS REPL ready\nType in console: run('input')\n";
-}
+        async function executeCommand() {
+            const cmd = commandEl.value.trim();
+            if (!cmd) return;
+            
+            commandEl.value = '';
+            addLog(cmd, "⏳ Berekenen...");
+            
+            commandEl.disabled = true;
+            runBtn.disabled = true;
 
-async function run(input){
-  let result = pyodide.runPython(`SemCAS("""${input}""")`);
-  log("> " + input);
-  log(result);
-}
+            try {
+                // Roep de SemCAS functie aan die nu in memory staat
+                // We escapen quotes om Python errors te voorkomen
+                const safeCmd = cmd.replace(/"/g, '\\"');
+                const result = pyodide.runPython(`SemCAS("${safeCmd}")`);
+                
+                // Verwijder de "Berekenen..." regel
+                outputEl.lastChild.remove();
+                addLog(cmd, result);
+            } catch (err) {
+                outputEl.lastChild.remove();
+                addLog(cmd, `❌ Error: ${err.message}`, true);
+            } finally {
+                commandEl.disabled = false;
+                runBtn.disabled = false;
+                commandEl.focus();
+            }
+        }
 
-init();
-</script>
+        runBtn.addEventListener('click', executeCommand);
+        commandEl.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') executeCommand();
+        });
 
+        // Start het proces
+        initPyodide();
+    </script>
 </body>
 </html>
